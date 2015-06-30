@@ -12,10 +12,13 @@
 typedef NS_ENUM(NSUInteger, CTDynamicLibManangerErrorCode) {
     CTDynamicLibManangerErrorCode_RegistHandlerFail,
     CTDynamicLibManangerErrorCode_PerformHandlerFail,
+    CTDynamicLibManangerErrorCode_LoadLibBundleFail,
+    CTDynamicLibManangerErrorCode_UpdateLibBundleFail
 };
 
 // error domain
 extern NSString * const kCTDynamicLibManangerErrorDomainHandler;
+extern NSString * const kCTDynamicLibManangerErrorDomainLifeCycle;
 
 
 #import <CTDynamicLibKit/CTDynamicLibManager.h>

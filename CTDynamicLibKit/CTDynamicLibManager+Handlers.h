@@ -18,6 +18,8 @@
 // you should regist handler before you call a handler
 - (BOOL)registHandlerFromDynamicLibPath:(NSString *)dynamicLibPath error:(NSError **)error;
 
+- (BOOL)registHandlerFromDynamicLibBundle:(NSBundle *)dynamicLibBundle error:(NSError **)error;
+
 - (NSDictionary *)allHandlers;
 
 - (void)removeHandler:(NSString *)handlerName;

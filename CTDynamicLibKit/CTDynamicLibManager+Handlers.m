@@ -36,12 +36,41 @@ NSString * const kCTDynamicLibManangerRegistedHandlersKeyPerformTarget = @"kCTDy
 - (BOOL)registHandlerFromDynamicLibPath:(NSString *)dynamicLibPath error:(NSError *__autoreleasing *)error
 {
     BOOL result = YES;
-    __autoreleasing NSError *generatedError = nil;
-    
     if (dynamicLibPath && dynamicLibPath.length > 0) {
         NSBundle *bundle = [NSBundle bundleWithPath:dynamicLibPath];
         if (bundle) {
-            NSArray *registedHandlers = bundle.infoDictionary[kCTDynamicLibManangerInfoPlistKeyRegistedHandlers];
+            [self registHandlerFromDynamicLibBundle:bundle error:error];
+        } else {
+            // bundle path error
+            result = NO;
+            *error = [NSError errorWithDomain:kCTDynamicLibManangerErrorDomainHandler
+                                                 code:CTDynamicLibManangerErrorCode_RegistHandlerFail
+                                             userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"bundle path [%@] not available", dynamicLibPath]}];
+        }
+    } else {
+        // params error
+        *error = [NSError errorWithDomain:kCTDynamicLibManangerErrorDomainHandler
+                                             code:CTDynamicLibManangerErrorCode_RegistHandlerFail
+                                         userInfo:@{NSLocalizedDescriptionKey:@"bundle path is empty"}];
+        result = NO;
+    }
+    
+    return result;
+}
+
+- (BOOL)registHandlerFromDynamicLibBundle:(NSBundle *)dynamicLibBundle error:(NSError *__autoreleasing *)error
+{
+    BOOL result = YES;
+    if (dynamicLibBundle) {
+        NSArray *registedHandlers = dynamicLibBundle.infoDictionary[kCTDynamicLibManangerInfoPlistKeyRegistedHandlers];
+        if (registedHandlers == nil || [registedHandlers count] == 0) {
+            result = NO;
+            *error = [NSError errorWithDomain:kCTDynamicLibManangerErrorDomainHandler
+                                                 code:CTDynamicLibManangerErrorCode_RegistHandlerFail
+                                             userInfo:@{
+                                                        NSLocalizedDescriptionKey:[NSString stringWithFormat:@"can not find any handler in bundle[%@]", dynamicLibBundle.infoDictionary]
+                                                        }];
+        } else {
             [registedHandlers enumerateObjectsUsingBlock:^(NSString *handler, NSUInteger idx, BOOL *stop) {
                 if (self.registedHandlers[handler]) {
                     NSBundle *registedBundle = self.registedHandlers[handler][kCTDynamicLibManangerRegistedHandlersKeyBundle];
@@ -49,24 +78,10 @@ NSString * const kCTDynamicLibManangerRegistedHandlersKeyPerformTarget = @"kCTDy
                         [registedBundle unload];
                     }
                 }
-                self.registedHandlers[handler] = [@{kCTDynamicLibManangerRegistedHandlersKeyBundle:bundle} mutableCopy];
+                self.registedHandlers[handler] = [@{kCTDynamicLibManangerRegistedHandlersKeyBundle:dynamicLibBundle} mutableCopy];
             }];
-        } else {
-            // bundle path error
-            result = NO;
-            generatedError = [NSError errorWithDomain:kCTDynamicLibManangerErrorDomainHandler
-                                                 code:CTDynamicLibManangerErrorCode_RegistHandlerFail
-                                             userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"bundle path [%@] not available", dynamicLibPath]}];
         }
-    } else {
-        // params error
-        generatedError = [NSError errorWithDomain:kCTDynamicLibManangerErrorDomainHandler
-                                             code:CTDynamicLibManangerErrorCode_RegistHandlerFail
-                                         userInfo:@{NSLocalizedDescriptionKey:@"bundle path is empty"}];
-        result = NO;
     }
-    
-    error = &generatedError;
     return result;
 }
 
@@ -149,6 +164,7 @@ NSString * const kCTDynamicLibManangerRegistedHandlersKeyPerformTarget = @"kCTDy
     id<CTDynamicLibPrincipalClassProtocol> target = self.registedHandlers[handler][kCTDynamicLibManangerRegistedHandlersKeyPerformTarget];
     if (target == nil) {
         NSBundle *bundle = self.registedHandlers[handler][kCTDynamicLibManangerRegistedHandlersKeyBundle];
+        [bundle load];
         target = [[bundle.principalClass alloc] init];
         if (target) {
             self.registedHandlers[handler][kCTDynamicLibManangerRegistedHandlersKeyPerformTarget] = target;

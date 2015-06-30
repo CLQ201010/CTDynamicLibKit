@@ -16,7 +16,11 @@
 @property (nonatomic, assign) id<CTDynamicLibManagerLifeCycleDataSource> lifeCycleDataSource;
 @property (nonatomic, assign) id<CTDynamicLibManagerLifeCycleDelegate> lifeCycleDelegate;
 
-- (void)loadDefaultDynamicLibs;
+/** 
+ load default dynanmic into libary which provided by id<CTDynamicLibManagerLifeCycleDataSource> lifeCycleDataSource
+ if not default lib, just register its handlers into CTDynamicLibMananger, which comes from a plist file named kCTDynamicLibManangerPackageListFileName
+ **/
+- (void)loadDynamicLibs;
 
 // path of downloaded and extracted framework, but has not moved from temp yet.
 - (void)updateDynamicLibWithTmpPath:(NSString *)path;
@@ -33,6 +37,6 @@
 @protocol CTDynamicLibManagerLifeCycleDelegate <NSObject>
 
 - (void)dynamicLibMananger:(CTDynamicLibManager *)dynamicLibMananger didSuccessedLoadBundle:(NSBundle *)bundle;
-- (void)dynamicLibMananger:(CTDynamicLibManager *)dynamicLibMananger didFailedLoadBundle:(NSBundle *)bundle;
+- (void)dynamicLibMananger:(CTDynamicLibManager *)dynamicLibMananger didFailedLoadBundleWithError:(NSError *)error;
 
 @end
