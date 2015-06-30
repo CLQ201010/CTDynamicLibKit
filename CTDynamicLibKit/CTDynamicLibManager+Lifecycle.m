@@ -89,7 +89,7 @@ NSString * const kCTDynamicLibManangerPackageListKeyBundlePath = @"kCTDynamicLib
     NSBundle *testBundle = [NSBundle bundleWithPath:path];
     NSError *error;
     
-    if (testBundle) {
+    if (testBundle.bundleIdentifier) {
         NSString *targetPath = [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.framework", testBundle.bundleIdentifier]];
         if (![[NSFileManager defaultManager] moveItemAtPath:path toPath:targetPath error:&error]) {
             
@@ -115,7 +115,8 @@ NSString * const kCTDynamicLibManangerPackageListKeyBundlePath = @"kCTDynamicLib
 #pragma mark - private methods
 - (NSString *)latestBundlePathWithBundleName:(NSString *)bundleName
 {
-    NSString *libraryPath = [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.framework", bundleName]];
+    NSString *librarySystemPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) firstObject];
+    NSString *libraryPath = [librarySystemPath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.framework", bundleName]];
     
     if (![[NSFileManager defaultManager] fileExistsAtPath:libraryPath]) {
         libraryPath = [[NSBundle mainBundle] pathForResource:bundleName ofType:@"framework"];
