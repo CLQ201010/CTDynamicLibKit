@@ -365,7 +365,7 @@
 			baseConfigurationReference = 9C7B2CC27690CFE13DCF3CB0 /* Pods-DynamicDemo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Shi Jie Qin (FSAP8479L6)";
+				CODE_SIGN_IDENTITY = "";
 				DEAD_CODE_STRIPPING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -385,7 +385,7 @@
 			baseConfigurationReference = A8B84C3CC4667C7616EB8C81 /* Pods-DynamicDemo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Shi Jie Qin (FSAP8479L6)";
+				CODE_SIGN_IDENTITY = "";
 				DEAD_CODE_STRIPPING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
