@@ -15,3 +15,5 @@ Demo/DynamicLibDemo/DynamicLibDemo.xcodeproj/project.xcworkspace/xcuserdata/casa
 Demo/DynamicLibDemo/DynamicLibDemo.xcodeproj/xcuserdata/casa.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
 Demo/DynamicLibDemo/DynamicLibDemo.xcodeproj/xcuserdata/casa.xcuserdatad/xcschemes/DynamicLibDemo.xcscheme
 Demo/DynamicLibDemo/DynamicLibDemo.xcodeproj/xcuserdata/casa.xcuserdatad/xcschemes/xcschememanagement.plist
+Demo/DynamicDemo/Podfile.lock
+Demo/DynamicDemo/Pods/
