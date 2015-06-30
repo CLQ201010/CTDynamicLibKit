@@ -102,7 +102,7 @@ NSString * const kCTDynamicLibManangerPackageListKeyBundlePath = @"kCTDynamicLib
         }
         
         if ([[NSFileManager defaultManager] moveItemAtPath:path toPath:targetPath error:&error]) {
-            if ([self registHandlerFromDynamicLibBundle:testBundle error:&error]) {
+            if ([self registHandlerFromDynamicLibPath:targetPath error:&error]) {
                 self.packageInfo[testBundle.bundleIdentifier] = @{kCTDynamicLibManangerPackageListKeyBundlePath:targetPath};
                 [self.packageInfo writeToFile:[[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:kCTDynamicLibManangerPackageListFileName] atomically:YES];
                 
