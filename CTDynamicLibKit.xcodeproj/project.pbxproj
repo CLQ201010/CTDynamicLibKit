@@ -13,6 +13,8 @@
 		4A947A841B41853F00E0923F /* CTDynamicLibManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A947A821B41853F00E0923F /* CTDynamicLibManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A947A851B41853F00E0923F /* CTDynamicLibManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A947A831B41853F00E0923F /* CTDynamicLibManager.m */; };
 		4A947A871B41868F00E0923F /* CTDynamicLibManager+Handlers.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A947A861B41868F00E0923F /* CTDynamicLibManager+Handlers.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A947A8D1B422E9200E0923F /* CTDynamicLibManager+Lifecycle.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A947A8B1B422E9200E0923F /* CTDynamicLibManager+Lifecycle.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A947A8E1B422E9200E0923F /* CTDynamicLibManager+Lifecycle.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A947A8C1B422E9200E0923F /* CTDynamicLibManager+Lifecycle.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +28,8 @@
 		4A947A821B41853F00E0923F /* CTDynamicLibManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTDynamicLibManager.h; sourceTree = "<group>"; };
 		4A947A831B41853F00E0923F /* CTDynamicLibManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CTDynamicLibManager.m; sourceTree = "<group>"; };
 		4A947A861B41868F00E0923F /* CTDynamicLibManager+Handlers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CTDynamicLibManager+Handlers.h"; sourceTree = "<group>"; };
+		4A947A8B1B422E9200E0923F /* CTDynamicLibManager+Lifecycle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CTDynamicLibManager+Lifecycle.h"; sourceTree = "<group>"; };
+		4A947A8C1B422E9200E0923F /* CTDynamicLibManager+Lifecycle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CTDynamicLibManager+Lifecycle.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +69,8 @@
 				4A947A831B41853F00E0923F /* CTDynamicLibManager.m */,
 				4A947A861B41868F00E0923F /* CTDynamicLibManager+Handlers.h */,
 				4A947A751B413EC600E0923F /* CTDynamicLibManager+Handlers.m */,
+				4A947A8B1B422E9200E0923F /* CTDynamicLibManager+Lifecycle.h */,
+				4A947A8C1B422E9200E0923F /* CTDynamicLibManager+Lifecycle.m */,
 				4A947A571B413D6500E0923F /* Supporting Files */,
 			);
 			path = CTDynamicLibKit;
@@ -105,6 +111,7 @@
 				4A947A5A1B413D6500E0923F /* CTDynamicLibKit.h in Headers */,
 				4A947A841B41853F00E0923F /* CTDynamicLibManager.h in Headers */,
 				4A947A871B41868F00E0923F /* CTDynamicLibManager+Handlers.h in Headers */,
+				4A947A8D1B422E9200E0923F /* CTDynamicLibManager+Lifecycle.h in Headers */,
 				4A947A7B1B417EA700E0923F /* CTDynamicLibPrincipalClassProtocol.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -178,6 +185,7 @@
 			files = (
 				4A947A851B41853F00E0923F /* CTDynamicLibManager.m in Sources */,
 				4A947A771B413EC600E0923F /* CTDynamicLibManager+Handlers.m in Sources */,
+				4A947A8E1B422E9200E0923F /* CTDynamicLibManager+Lifecycle.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

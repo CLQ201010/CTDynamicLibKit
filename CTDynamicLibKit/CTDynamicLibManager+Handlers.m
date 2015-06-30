@@ -17,6 +17,13 @@ NSString * const kCTDynamicLibManangerErrorDomainHandler = @"CTDynamicLibManange
 static const void *kCTDynamicLibManangerProperty_RegistedHandlers;
 static const void *kCTDynamicLibManangerProperty_HandlerDelegate;
 
+// keys for handler when reading info.plist
+NSString * const kCTDynamicLibManangerInfoPlistKeyRegistedHandlers = @"Registed Handlers";
+
+// keys in registedHandlers
+NSString * const kCTDynamicLibManangerRegistedHandlersKeyBundle = @"kCTDynamicLibManangerRegistedHandlersKeyBundle";
+NSString * const kCTDynamicLibManangerRegistedHandlersKeyPerformTarget = @"kCTDynamicLibManangerRegistedHandlersKeyPerformTarget";
+
 @interface CTDynamicLibManager ()
 
 @property (nonatomic, strong) NSMutableDictionary *registedHandlers;
@@ -26,32 +33,71 @@ static const void *kCTDynamicLibManangerProperty_HandlerDelegate;
 @implementation CTDynamicLibManager (Handlers)
 
 #pragma mark - public methods
-- (BOOL)registHandler:(NSString *)handler
-            forTarget:(id<CTDynamicLibPrincipalClassProtocol>)target
-            withError:(NSError *__autoreleasing *)error
+- (BOOL)registHandlerFromDynamicLibPath:(NSString *)dynamicLibPath error:(NSError *__autoreleasing *)error
 {
     BOOL result = YES;
-    if (handler && target
-        && [handler isKindOfClass:[NSString class]] && [target respondsToSelector:@selector(performHandler:withParams:processingCallback:completion:)]
-        && handler.length > 0){
-            self.registedHandlers[handler] = target;
-    } else {
-        result = NO;
-        __autoreleasing NSError *generatedError = [NSError errorWithDomain:kCTDynamicLibManangerErrorDomainHandler
-                                                                      code:CTDynamicLibManangerErrorCode_RegistHandlerFail
-                                                                  userInfo:@{
-                                                                             NSLocalizedDescriptionKey:[NSString stringWithFormat:@"failed to regist handler[%@] in target[%@]", handler, [target class]],
-                                                                             NSLocalizedRecoverySuggestionErrorKey:[NSString stringWithFormat:@"check handler name is NSString and is not nil, check the target[%@] is responds to selector[%@].", [target class], NSStringFromSelector(@selector(performHandler:withParams:processingCallback:completion:))]
-                                                                             }];
-        error = &generatedError;
-        if ([self.handlerDelegate respondsToSelector:@selector(dynamicLibMananger:didFailedRegistHandler:forTarget:error:)]) {
-            [self.handlerDelegate dynamicLibMananger:self didFailedRegistHandler:handler forTarget:nil error:generatedError];
+    __autoreleasing NSError *generatedError = nil;
+    
+    if (dynamicLibPath && dynamicLibPath.length > 0) {
+        NSBundle *bundle = [NSBundle bundleWithPath:dynamicLibPath];
+        if (bundle) {
+            NSArray *registedHandlers = bundle.infoDictionary[kCTDynamicLibManangerInfoPlistKeyRegistedHandlers];
+            [registedHandlers enumerateObjectsUsingBlock:^(NSString *handler, NSUInteger idx, BOOL *stop) {
+                if (self.registedHandlers[handler]) {
+                    NSBundle *registedBundle = self.registedHandlers[handler][kCTDynamicLibManangerRegistedHandlersKeyBundle];
+                    if (registedBundle.loaded) {
+                        [registedBundle unload];
+                    }
+                }
+                self.registedHandlers[handler] = [@{kCTDynamicLibManangerRegistedHandlersKeyBundle:bundle} mutableCopy];
+            }];
+        } else {
+            // bundle path error
+            result = NO;
+            generatedError = [NSError errorWithDomain:kCTDynamicLibManangerErrorDomainHandler
+                                                 code:CTDynamicLibManangerErrorCode_RegistHandlerFail
+                                             userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"bundle path [%@] not available", dynamicLibPath]}];
         }
+    } else {
+        // params error
+        generatedError = [NSError errorWithDomain:kCTDynamicLibManangerErrorDomainHandler
+                                             code:CTDynamicLibManangerErrorCode_RegistHandlerFail
+                                         userInfo:@{NSLocalizedDescriptionKey:@"bundle path is empty"}];
+        result = NO;
     }
     
+    error = &generatedError;
     return result;
 }
 
+- (void)removeHandler:(NSString *)handlerName
+{
+    if (handlerName && handlerName.length > 0 && self.registedHandlers[handlerName]) {
+        [self.registedHandlers removeObjectForKey:handlerName];
+    }
+}
+
+- (void)removeHandlersOfTarget:(id<CTDynamicLibPrincipalClassProtocol>)target
+{
+    if (target == nil) {
+        return;
+    }
+
+    NSMutableArray *handlerListToRemove = [[NSMutableArray alloc] init];
+    [self.registedHandlers enumerateKeysAndObjectsUsingBlock:^(NSString *handler, NSDictionary *obj, BOOL *stop) {
+        if (obj[kCTDynamicLibManangerRegistedHandlersKeyPerformTarget] == target) {
+            [handlerListToRemove addObject:handler];
+        }
+    }];
+    [self.registedHandlers removeObjectsForKeys:handlerListToRemove];
+}
+
+- (NSDictionary *)allHandlers
+{
+    return self.registedHandlers;
+}
+
+#pragma marm - methods for perform handlers
 - (void)performHandler:(NSString *)handler
 {
     [self performHandler:handler withParams:nil processingCallback:nil completion:nil];
@@ -99,8 +145,31 @@ static const void *kCTDynamicLibManangerProperty_HandlerDelegate;
         }
     }
     
-    id<CTDynamicLibPrincipalClassProtocol> target = self.registedHandlers[handler];
-    if (target && [target respondsToSelector:@selector(performHandler:withParams:processingCallback:completion:)]) {
+    // lazy load target
+    id<CTDynamicLibPrincipalClassProtocol> target = self.registedHandlers[handler][kCTDynamicLibManangerRegistedHandlersKeyPerformTarget];
+    if (target == nil) {
+        NSBundle *bundle = self.registedHandlers[handler][kCTDynamicLibManangerRegistedHandlersKeyBundle];
+        target = [[bundle.principalClass alloc] init];
+        if (target) {
+            self.registedHandlers[handler][kCTDynamicLibManangerRegistedHandlersKeyPerformTarget] = target;
+        } else {
+            NSError *error = [NSError errorWithDomain:kCTDynamicLibManangerErrorDomainHandler
+                                                 code:CTDynamicLibManangerErrorCode_PerformHandlerFail
+                                             userInfo:@{
+                                                        NSLocalizedDescriptionKey:[NSString stringWithFormat:@"target for bundle[%@] can not be initialized", bundle.infoDictionary],
+                                                        NSLocalizedRecoverySuggestionErrorKey:[NSString stringWithFormat:@"check Info.plist in bundle[%@], does the [Principal Class] is well setted?", bundle.infoDictionary]
+                                                        }];
+            if ([self.handlerDelegate respondsToSelector:@selector(dynamicLibMananger:didFailedPerformHandler:forTarget:withParams:error:)]) {
+                [self.handlerDelegate dynamicLibMananger:self didFailedPerformHandler:handler forTarget:nil withParams:params error:error];
+            }
+            if (completion) {
+                completion(nil, error);
+            }
+        }
+    }
+    
+    // if target is available, then perform handler
+    if ([target respondsToSelector:@selector(performHandler:withParams:processingCallback:completion:)]) {
         __weak typeof(self) weakSelf = self;
         void(^completionCallback)(NSDictionary *resultInfo, NSError *error) = ^(NSDictionary *resultInfo, NSError *error){
             __strong typeof(weakSelf) strongSelf = weakSelf;

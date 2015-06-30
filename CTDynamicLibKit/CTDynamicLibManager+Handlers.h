@@ -16,10 +16,15 @@
 @property (nonatomic, assign) id<CTDynamicLibManagerHandlerDelegate> handlerDelegate;
 
 // you should regist handler before you call a handler
-- (BOOL)registHandler:(NSString *)handler
-            forTarget:(id<CTDynamicLibPrincipalClassProtocol>)dynamicLibBundle
-            withError:(NSError **)error;
+- (BOOL)registHandlerFromDynamicLibPath:(NSString *)dynamicLibPath error:(NSError **)error;
 
+- (NSDictionary *)allHandlers;
+
+- (void)removeHandler:(NSString *)handlerName;
+
+- (void)removeHandlersOfTarget:(id<CTDynamicLibPrincipalClassProtocol>)target;
+
+// methods to perform handler.
 - (void)performHandler:(NSString *)handler;
 
 - (void)performHandler:(NSString *)handler

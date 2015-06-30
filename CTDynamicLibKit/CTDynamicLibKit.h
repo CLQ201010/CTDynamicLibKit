@@ -20,4 +20,5 @@ extern NSString * const kCTDynamicLibManangerErrorDomainHandler;
 
 #import <CTDynamicLibKit/CTDynamicLibManager.h>
 #import <CTDynamicLibKit/CTDynamicLibManager+Handlers.h>
+#import <CTDynamicLibKit/CTDynamicLibManager+Lifecycle.h>
 #import <CTDynamicLibKit/CTDynamicLibPrincipalClassProtocol.h>
