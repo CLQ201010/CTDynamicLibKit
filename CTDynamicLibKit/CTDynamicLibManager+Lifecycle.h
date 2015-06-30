@@ -36,7 +36,15 @@
 
 @protocol CTDynamicLibManagerLifeCycleDelegate <NSObject>
 
+@optional
+
 - (void)dynamicLibMananger:(CTDynamicLibManager *)dynamicLibMananger didSuccessedLoadBundle:(NSBundle *)bundle;
+
 - (void)dynamicLibMananger:(CTDynamicLibManager *)dynamicLibMananger didFailedLoadBundleWithError:(NSError *)error;
+
+
+- (void)dynamicLibMananger:(CTDynamicLibManager *)dynamicLibMananger didSuccessedUpdateBundleAtPath:(NSString *)bundlePath tmpPath:(NSString *)tmpPath;
+
+- (void)dynamicLibMananger:(CTDynamicLibManager *)dynamicLibMananger didFailedUpdateBundleAtPath:(NSString *)bundlePath tmpPath:(NSString *)tmpPath error:(NSError *)error;
 
 @end
