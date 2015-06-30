@@ -1,0 +1,6 @@
+framework module DynamicBaseLib {
+  umbrella header "DynamicBaseLib.h"
+
+  export *
+  module * { export * }
+}

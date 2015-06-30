@@ -1,0 +1,6 @@
+framework module CTDynamicLibKit {
+  umbrella header "CTDynamicLibKit.h"
+
+  export *
+  module * { export * }
+}
