@@ -56,24 +56,19 @@
 @protocol CTDynamicLibManagerHandlerDelegate <NSObject>
 
 @optional
-- (void)dynamicLibMananger:(CTDynamicLibManager *)mananger
- didSuccessedRegistHandler:(NSString *)handlerName
-                 forTarget:(id<CTDynamicLibPrincipalClassProtocol>)target;
+- (void)dynamicLibMananger:(CTDynamicLibManager *)mananger didSuccessedRegistHandlerForBundle:(NSBundle *)bundle;
 
-- (void)dynamicLibMananger:(CTDynamicLibManager *)mananger
-    didFailedRegistHandler:(NSString *)handlerName
-                 forTarget:(id<CTDynamicLibPrincipalClassProtocol>)target
-                     error:(NSError *)error;
+- (void)dynamicLibMananger:(CTDynamicLibManager *)mananger didFailedRegistHandlerForBundle:(NSBundle *)bundle error:(NSError *)error;
 
 - (void)dynamicLibMananger:(CTDynamicLibManager *)mananger
 didSuccessedPerformHandler:(NSString *)handlerName
-                 forTarget:(id<CTDynamicLibPrincipalClassProtocol>)target
+                 forBundle:(NSBundle *)bundle
                 withParams:(NSDictionary *)params
          resultInformation:(NSDictionary *)resultInfo;
 
 - (void)dynamicLibMananger:(CTDynamicLibManager *)mananger
    didFailedPerformHandler:(NSString *)handlerName
-                 forTarget:(id<CTDynamicLibPrincipalClassProtocol>)target
+                 forBundle:(NSBundle *)bundle
                 withParams:(NSDictionary *)params
                      error:(NSError *)error;
 
