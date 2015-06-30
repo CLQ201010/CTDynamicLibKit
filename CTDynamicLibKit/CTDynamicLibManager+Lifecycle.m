@@ -18,9 +18,9 @@ NSString * const kCTDynamicLibManangerErrorDomainLifeCycle = @"CTDynamicLibManan
 NSString * const kCTDynamicLibManangerPackageListFileName = @"CTDynamicLibPackageInfo.plist";
 
 // property in category
-static const void *kCTDynamicLibManangerProperty_LifeCycleDataSource;
-static const void *kCTDynamicLibManangerProperty_LifeCycleDelegate;
-static const void *kCTDynamicLibManangerProperty_PackageInfo;
+static char kCTDynamicLibManangerProperty_LifeCycleDataSource[] = "kCTDynamicLibManangerProperty_LifeCycleDataSource";
+static char kCTDynamicLibManangerProperty_LifeCycleDelegate[] = "kCTDynamicLibManangerProperty_LifeCycleDelegate";
+static char kCTDynamicLibManangerProperty_PackageInfo[] = "kCTDynamicLibManangerProperty_PackageInfo";
 
 // keys for package info when reading PackageInfo.plist
 NSString * const kCTDynamicLibManangerPackageListKeyBundlePath = @"kCTDynamicLibManangerPackageListKeyBundlePath";
@@ -91,11 +91,32 @@ NSString * const kCTDynamicLibManangerPackageListKeyBundlePath = @"kCTDynamicLib
     
     if (testBundle.bundleIdentifier) {
         NSString *targetPath = [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.framework", testBundle.bundleIdentifier]];
-        if (![[NSFileManager defaultManager] moveItemAtPath:path toPath:targetPath error:&error]) {
-            
-            self.packageInfo[testBundle.bundleIdentifier] = @{kCTDynamicLibManangerPackageListKeyBundlePath:targetPath};
-            [self.packageInfo writeToFile:[[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:kCTDynamicLibManangerPackageListFileName] atomically:YES];
-            
+        
+        if ([[NSFileManager defaultManager] fileExistsAtPath:targetPath]) {
+            if (![[NSFileManager defaultManager] removeItemAtPath:targetPath error:&error]) {
+                if (self.lifeCycleDelegate && [self.lifeCycleDelegate respondsToSelector:@selector(dynamicLibMananger:didFailedLoadBundleWithError:)]) {
+                    [self.lifeCycleDelegate dynamicLibMananger:self didFailedLoadBundleWithError:error];
+                }
+                return;
+            }
+        }
+        
+        if ([[NSFileManager defaultManager] moveItemAtPath:path toPath:targetPath error:&error]) {
+            if ([self registHandlerFromDynamicLibBundle:testBundle error:&error]) {
+                self.packageInfo[testBundle.bundleIdentifier] = @{kCTDynamicLibManangerPackageListKeyBundlePath:targetPath};
+                [self.packageInfo writeToFile:[[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:kCTDynamicLibManangerPackageListFileName] atomically:YES];
+                
+                if (self.lifeCycleDelegate && [self.lifeCycleDelegate respondsToSelector:@selector(dynamicLibMananger:didSuccessedLoadBundle:)]) {
+                    [self.lifeCycleDelegate dynamicLibMananger:self didSuccessedLoadBundle:testBundle];
+                }
+            } else {
+                // failed to regist handler
+                if (self.lifeCycleDelegate && [self.lifeCycleDelegate respondsToSelector:@selector(dynamicLibMananger:didFailedLoadBundleWithError:)]) {
+                    [self.lifeCycleDelegate dynamicLibMananger:self didFailedLoadBundleWithError:error];
+                }
+            }
+        } else {
+            // failed to move to library path
             if (self.lifeCycleDelegate && [self.lifeCycleDelegate respondsToSelector:@selector(dynamicLibMananger:didFailedLoadBundleWithError:)]) {
                 [self.lifeCycleDelegate dynamicLibMananger:self didFailedLoadBundleWithError:error];
             }

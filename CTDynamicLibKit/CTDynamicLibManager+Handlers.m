@@ -14,8 +14,8 @@
 NSString * const kCTDynamicLibManangerErrorDomainHandler = @"CTDynamicLibMananger.handler";
 
 // property in category
-static const void *kCTDynamicLibManangerProperty_RegistedHandlers;
-static const void *kCTDynamicLibManangerProperty_HandlerDelegate;
+static char kCTDynamicLibManangerProperty_RegistedHandlers[] = "kCTDynamicLibManangerProperty_RegistedHandlers";
+static char kCTDynamicLibManangerProperty_HandlerDelegate[] = "kCTDynamicLibManangerProperty_HandlerDelegate";
 
 // keys for handler when reading info.plist
 NSString * const kCTDynamicLibManangerInfoPlistKeyRegistedHandlers = @"Registed Handlers";
@@ -38,7 +38,7 @@ NSString * const kCTDynamicLibManangerRegistedHandlersKeyPerformTarget = @"kCTDy
     BOOL result = YES;
     if (dynamicLibPath && dynamicLibPath.length > 0) {
         NSBundle *bundle = [NSBundle bundleWithPath:dynamicLibPath];
-        if (bundle) {
+        if (bundle.bundleIdentifier) {
             [self registHandlerFromDynamicLibBundle:bundle error:error];
         } else {
             // bundle path error
@@ -61,7 +61,7 @@ NSString * const kCTDynamicLibManangerRegistedHandlersKeyPerformTarget = @"kCTDy
 - (BOOL)registHandlerFromDynamicLibBundle:(NSBundle *)dynamicLibBundle error:(NSError *__autoreleasing *)error
 {
     BOOL result = YES;
-    if (dynamicLibBundle) {
+    if (dynamicLibBundle && dynamicLibBundle.bundleIdentifier) {
         NSArray *registedHandlers = dynamicLibBundle.infoDictionary[kCTDynamicLibManangerInfoPlistKeyRegistedHandlers];
         if (registedHandlers == nil || [registedHandlers count] == 0) {
             result = NO;
@@ -158,14 +158,33 @@ NSString * const kCTDynamicLibManangerRegistedHandlersKeyPerformTarget = @"kCTDy
         if (completion) {
             completion(nil, error);
         }
+        return;
     }
     
     // lazy load target
     id<CTDynamicLibPrincipalClassProtocol> target = self.registedHandlers[handler][kCTDynamicLibManangerRegistedHandlersKeyPerformTarget];
     if (target == nil) {
+
         NSBundle *bundle = self.registedHandlers[handler][kCTDynamicLibManangerRegistedHandlersKeyBundle];
         [bundle load];
-        target = [[bundle.principalClass alloc] init];
+        if ([bundle.principalClass conformsToProtocol:@protocol(CTDynamicLibPrincipalClassProtocol)]) {
+            target = [bundle.principalClass sharedInstance];
+        } else {
+            NSError *error = [NSError errorWithDomain:kCTDynamicLibManangerErrorDomainHandler
+                                                 code:CTDynamicLibManangerErrorCode_PerformHandlerFail
+                                             userInfo:@{
+                                                        NSLocalizedDescriptionKey:[NSString stringWithFormat:@"target for bundle[%@] can not be initialized", bundle.infoDictionary],
+                                                        NSLocalizedRecoverySuggestionErrorKey:[NSString stringWithFormat:@"check Info.plist in bundle[%@], does the [Principal Class] is well setted and conforms to Protocol %@?", bundle.infoDictionary, NSStringFromProtocol(@protocol(CTDynamicLibPrincipalClassProtocol))]
+                                                        }];
+            if ([self.handlerDelegate respondsToSelector:@selector(dynamicLibMananger:didFailedPerformHandler:forTarget:withParams:error:)]) {
+                [self.handlerDelegate dynamicLibMananger:self didFailedPerformHandler:handler forTarget:nil withParams:params error:error];
+            }
+            if (completion) {
+                completion(nil, error);
+            }
+            return;
+        }
+
         if (target) {
             self.registedHandlers[handler][kCTDynamicLibManangerRegistedHandlersKeyPerformTarget] = target;
         } else {
@@ -181,6 +200,7 @@ NSString * const kCTDynamicLibManangerRegistedHandlersKeyPerformTarget = @"kCTDy
             if (completion) {
                 completion(nil, error);
             }
+            return;
         }
     }
     
@@ -219,6 +239,7 @@ NSString * const kCTDynamicLibManangerRegistedHandlersKeyPerformTarget = @"kCTDy
         if (completion) {
             completion(nil, error);
         }
+        return;
     }
 }
 
