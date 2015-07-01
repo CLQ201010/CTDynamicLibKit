@@ -20,7 +20,7 @@
 		4A02C1A61B3ADB7000B8AFAF /* DynamicLibDemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DynamicLibDemoTests.m; sourceTree = "<group>"; };
 		4A02C1B01B3ADB9000B8AFAF /* TestObj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestObj.h; sourceTree = "<group>"; };
 		4A02C1B11B3ADB9100B8AFAF /* TestObj.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestObj.m; sourceTree = "<group>"; };
-		4A947A7E1B417F4200E0923F /* CTDynamicLibKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CTDynamicLibKit.framework; sourceTree = "<group>"; };
+		4A5401EA1B4381A200B3C383 /* CTDynamicLibKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = CTDynamicLibKit.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,7 +65,7 @@
 		4A02C1971B3ADB7000B8AFAF /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				4A947A7E1B417F4200E0923F /* CTDynamicLibKit.framework */,
+				4A5401EA1B4381A200B3C383 /* CTDynamicLibKit.framework */,
 				4A02C1981B3ADB7000B8AFAF /* Info.plist */,
 			);
 			name = "Supporting Files";
